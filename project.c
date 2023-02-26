@@ -21,8 +21,14 @@ typedef struct{
 } process;
 
 //pseudo random number generation
-int next_exp(int lambda){
-    return -log(rand())/lambda;
+int next_exp(int lambda, int upper){
+    int val = -log(drand48())/lambda;
+
+    while(val > upper){
+        val = -log(drand48())/lambda;
+    }
+
+    return val;
 }
 
 int main(int argc, char** argv)
@@ -88,11 +94,8 @@ int main(int argc, char** argv)
         srand48(seed);
         
         //initial arrival time from next_exp()
-        int arriv = floor(next_exp(interarrival));
-        while(arriv > upper_bound){
-            arriv = floor(next_exp(interarrival));
-        }
-
+        int arriv = floor(next_exp(interarrival, upper_bound));
+       
         ptr->init_arriv = arriv;
         
         // find number of bursts
@@ -110,10 +113,8 @@ int main(int argc, char** argv)
         //find burst times
         for(int j = 0; j < ptr->num_bursts; j++){
             //cpu time
-            int cpu = ceil(next_exp(interarrival));
-            while(cpu > upper_bound){
-                cpu = ceil(next_exp(interarrival));
-            }
+            int cpu = ceil(next_exp(interarrival, upper_bound));
+
             //cpu-bound
             int* ptr1 = ptr->cpu_bursts + j;
             if(ptr->type == 1){//cpu
@@ -126,10 +127,8 @@ int main(int argc, char** argv)
             //io-bound
             if(j != ptr->num_bursts-1){
                 int* ptr2 = ptr->io_bursts + j;
-                int io = ceil(next_exp(interarrival));
-                while(io > upper_bound){
-                    io = ceil(next_exp(interarrival));
-                }
+                int io = ceil(next_exp(interarrival, upper_bound));
+
                 if(ptr->type == 1){//cpu
                     *ptr2 = io*10/4;
                 }
