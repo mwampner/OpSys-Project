@@ -21,14 +21,12 @@ typedef struct{
 } process;
 
 //pseudo random number generation
-double next_exp(int lambda, int upper){
-
-    double val = (-log(drand48()))/(lambda);
-
+float next_exp(float lambda, int upper){
+    float val = -log(drand48())/lambda;
     while(val > upper){
-        val = (-log(drand48()))/(lambda);
+        val = -log(drand48())/lambda;
     }
-    //printf("%f\n", val);
+
     return val;
 }
 
@@ -70,7 +68,7 @@ int main(int argc, char** argv)
     int num_proc = atoi(*(argv+1));
     int cpu_bound = atoi(*(argv+2));
     int seed = atoi(*(argv+3));
-    int interarrival = atof(*(argv+4));
+    float interarrival = atof(*(argv+4));
     int upper_bound = atoi(*(argv+5));
 
     //allocate/assign processes array
@@ -79,7 +77,6 @@ int main(int argc, char** argv)
     for(int i = 0; i < num_proc; i++){
         process* ptr = processes + i;
         ptr->name = 65 + i;
-        //printf("%c\n", ptr->name);
         if(i >= num_proc-cpu_bound){
             ptr->type = 1;
         }
@@ -88,18 +85,14 @@ int main(int argc, char** argv)
         }
     }
 
-
-    srand48(seed);
-
     //scheduling
+    srand48(seed);
     for(int i = 0; i < num_proc; i++){
         process* ptr = processes + i;
-
-        
         
         //initial arrival time from next_exp()
         int arriv = floor(next_exp(interarrival, upper_bound));
-       
+        //printf("ARRIVAL TIME: %d\n", arriv);
         ptr->init_arriv = arriv;
         
         // find number of bursts
@@ -134,7 +127,7 @@ int main(int argc, char** argv)
                 int io = ceil(next_exp(interarrival, upper_bound));
 
                 if(ptr->type == 1){//cpu
-                    *ptr2 = (io*10)/4;
+                    *ptr2 = io*10/4;
                 }
                 else{
                     *ptr2 = io*10;
@@ -144,22 +137,38 @@ int main(int argc, char** argv)
 
     }
 
+
+
     //print statements
-    for(int i = 0; i < num_proc; i++){
-
-        process* p = processes + i;
-
-        if(p->type == 1){
-            printf("CPU-bound process %c: arrival time %dms; %d CPU bursts:\n", p->name, p->init_arriv, p->num_bursts);
-        }else{
-            printf("I/O-bound process %c: arrival time %dms; %d CPU bursts:\n", p->name, p->init_arriv, p->num_bursts);
-        }
-
-        for(int j=0; j<p->num_bursts-1; j++){
-            printf("--> cpu burst %dms --> I/O burst %dms\n", p->cpu_bursts[j], p->io_bursts[j]);
-        }
-        printf("--> CPU burst %dms\n",  p->cpu_bursts[p->num_bursts - 1]);
-
-        
+    printf("<<< PROJECT PART I -- process set (n=%d) with %d CPU-bound ", num_proc, cpu_bound);
+    if(cpu_bound == 1){
+        printf("process >>>\n");
+    }else{
+        printf("processes >>>\n");
     }
+    for(int i = 0; i < num_proc; i++){
+        process* ptr = processes + i;
+        if(ptr->type == 1){
+            printf("CPU");
+        }
+        else{
+            printf("I/O");
+        }
+        printf("-bound process %c: arrival time %dms; %d CPU bursts:\n", ptr->name, ptr->init_arriv, ptr->num_bursts);
+
+        for(int j = 0; j < ptr->num_bursts; j++){
+            printf("--> CPU burst %dms", *(ptr->cpu_bursts+j));
+            
+            if(j < ptr->num_bursts-1){
+                printf(" --> I/O burst %dms", *(ptr->io_bursts+j));
+            }
+
+            printf("\n");
+        }
+        free(ptr->cpu_bursts);
+        free(ptr->io_bursts);
+    }
+
+    //free memory
+    free(processes);
 }
