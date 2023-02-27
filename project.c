@@ -92,7 +92,6 @@ int main(int argc, char** argv)
         
         //initial arrival time from next_exp()
         int arriv = floor(next_exp(interarrival, upper_bound));
-        printf("ARRIVAL TIME: %d\n", arriv);
         ptr->init_arriv = arriv;
         
         // find number of bursts
@@ -138,7 +137,7 @@ int main(int argc, char** argv)
     }
 
     //print statements
-    printf("<< PROJECT PART I -- process set (n=%d) with %d CPU-bound process >>>\n", num_proc, cpu_bound);
+    printf("<<< PROJECT PART I -- process set (n=%d) with %d CPU-bound process >>>\n", num_proc, cpu_bound);
     for(int i = 0; i < num_proc; i++){
         process* ptr = processes + i;
         if(ptr->type == 1){
