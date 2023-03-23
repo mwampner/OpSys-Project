@@ -18,6 +18,10 @@ typedef struct{
     int num_bursts;
     int* cpu_bursts;
     int* io_bursts;
+    int cpu_burst_time;
+    int turnaround_time;
+    int wait_time;
+    
 } process;
 
 //pseudo random number generation
@@ -30,11 +34,27 @@ float next_exp(float lambda, int upper){
     return val;
 }
 
+//First Come First Serve (FCFS) Algorithm
+
+void fcfs(){}
+
+//Shortest Job First (SJF) Algorithm
+
+void srt(){}
+
+//Shortest Remaining Time (SRT) Algorithm
+
+void srt(){}
+
+//Round Robin (RR) Algorithm
+
+void rr(){}
+
 int main(int argc, char** argv)
 {
     //input validation
 
-    if(argc != 6){
+    if(argc != 8){
         fprintf(stderr, "ERROR: Invalid argument(s)\n");
         return EXIT_FAILURE;
     }
@@ -64,12 +84,30 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
+    if(atoi(*(argv+6)) < 0 || isalpha(**(argv+6)) || atoi(*(argv+6))%2 != 0){
+        fprintf(stderr, "ERROR: Invalid number of Context Switch Time\n");
+        return EXIT_FAILURE;
+    }
+
+    if(atoi(*(argv+7)) < 0 || isalpha(**(argv+7))){
+        fprintf(stderr, "ERROR: Invalid value for CPU Burst Time estimate\n");
+        return EXIT_FAILURE;
+    }
+
+    if(atoi(*(argv+8)) < 0 || isalpha(**(argv+8))){
+        fprintf(stderr, "ERROR: Invalid value for Time Slice\n");
+        return EXIT_FAILURE;
+    }
+
     //assign input variables
     int num_proc = atoi(*(argv+1));
     int cpu_bound = atoi(*(argv+2));
     int seed = atoi(*(argv+3));
     float interarrival = atof(*(argv+4));
     int upper_bound = atoi(*(argv+5));
+    int context_switch = atoi(*(argv+6));
+    int cpu_est = atoi(*(argv+7));
+    int time_slice = atoi(*(argv+*));
 
     //allocate/assign processes array
     process* processes = calloc(num_proc, sizeof(process));
@@ -92,7 +130,6 @@ int main(int argc, char** argv)
         
         //initial arrival time from next_exp()
         int arriv = floor(next_exp(interarrival, upper_bound));
-        //printf("ARRIVAL TIME: %d\n", arriv);
         ptr->init_arriv = arriv;
         
         // find number of bursts
@@ -137,15 +174,8 @@ int main(int argc, char** argv)
 
     }
 
-
-
     //print statements
-    printf("<<< PROJECT PART I -- process set (n=%d) with %d CPU-bound ", num_proc, cpu_bound);
-    if(cpu_bound == 1){
-        printf("process >>>\n");
-    }else{
-        printf("processes >>>\n");
-    }
+    printf("<<< PROJECT PART I -- process set (n=%d) with %d CPU-bound process >>>\n", num_proc, cpu_bound);
     for(int i = 0; i < num_proc; i++){
         process* ptr = processes + i;
         if(ptr->type == 1){
