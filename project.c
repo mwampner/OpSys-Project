@@ -879,15 +879,14 @@ void sjf(process * unarrived, int len, int t_cs, float est, int upper){
             int num = 0;
             //find arrival
             for(int i = 0; i < len; i++){
-                //printf("NAME: %c !!!! %d %c\n", (*(unarrived+i)).name, (*(unarrived+i)).init_arriv, (*(unarrived+i)).status);
-                if((*(unarrived+i)).status == 'u' && (unarrived+i)->init_arriv < time+burst && ((unarrived+i)->init_arriv <= event_time || event_time == -1)){
-                    //printf("NAME: %c !!!!\n", (*(unarrived+i)).name);
+                if(event_time != -1 && (*(unarrived+i)).status == 'u' && (*(unarrived+i)).return_time == event_time && (*(unarrived+i)).name < event_proc.name){
                     event = true;
                     event_time = (*(unarrived+i)).init_arriv;
                     event_proc = (*(unarrived+i));
                     num = i;
                 }
-                else if((*(unarrived+i)).return_time == event_time && (*(unarrived+i)).name < event_proc.name){
+                else if((*(unarrived+i)).status == 'u' && (unarrived+i)->init_arriv < time+burst && ((unarrived+i)->init_arriv < event_time || event_time == -1)){
+                    //printf("NAME: %c !!!!\n", (*(unarrived+i)).name);
                     event = true;
                     event_time = (*(unarrived+i)).init_arriv;
                     event_proc = (*(unarrived+i));
@@ -1020,20 +1019,19 @@ void sjf(process * unarrived, int len, int t_cs, float est, int upper){
                 int num = 0;
                 //find arrival
                 for(int i = 0; i < len; i++){
-                    //printf("NAME: %c !!!! %d %c\n", (*(unarrived+i)).name, (*(unarrived+i)).init_arriv, (*(unarrived+i)).status);
-                    if((*(unarrived+i)).status == 'u' && (unarrived+i)->init_arriv < time+t_cs && ((unarrived+i)->init_arriv <= event_time || event_time == -1)){
-                        //printf("NAME: %c !!!!\n", (*(unarrived+i)).name);
-                        event = true;
-                        event_time = (*(unarrived+i)).init_arriv;
-                        event_proc = (*(unarrived+i));
-                        num = i;
-                    }
-                    else if((*(unarrived+i)).return_time == event_time && (*(unarrived+i)).name < event_proc.name){
-                        event = true;
-                        event_time = (*(unarrived+i)).init_arriv;
-                        event_proc = (*(unarrived+i));
-                        num = i;
-                    }
+                    if(event_time != -1 && (*(unarrived+i)).status == 'u' && (*(unarrived+i)).return_time == event_time && (*(unarrived+i)).name < event_proc.name){
+                    event = true;
+                    event_time = (*(unarrived+i)).init_arriv;
+                    event_proc = (*(unarrived+i));
+                    num = i;
+                }
+                else if((*(unarrived+i)).status == 'u' && (unarrived+i)->init_arriv < time+t_cs && ((unarrived+i)->init_arriv < event_time || event_time == -1)){
+                    //printf("NAME: %c !!!!\n", (*(unarrived+i)).name);
+                    event = true;
+                    event_time = (*(unarrived+i)).init_arriv;
+                    event_proc = (*(unarrived+i));
+                    num = i;
+                }
                 }
                 //find io finish
                 for(int i = 0; i < num_io; i++){
@@ -1356,19 +1354,20 @@ void srt(process * unarrived, int len, int t_cs, float est, int upper){
             //find arrival
             for(int i = 0; i < len; i++){
                 //printf("NAME: %c !!!! %d %c\n", (*(unarrived+i)).name, (*(unarrived+i)).init_arriv, (*(unarrived+i)).status);
-                if((*(unarrived+i)).status == 'u' && (unarrived+i)->init_arriv < time+burst && ((unarrived+i)->init_arriv <= event_time || event_time == -1)){
+                if(event_time != -1 && (*(unarrived+i)).status == 'u' && (*(unarrived+i)).return_time == event_time && (*(unarrived+i)).name < event_proc.name){
+                    event = true;
+                    event_time = (*(unarrived+i)).init_arriv;
+                    event_proc = (*(unarrived+i));
+                    num = i;
+                }
+                else if((*(unarrived+i)).status == 'u' && (unarrived+i)->init_arriv < time+burst && ((unarrived+i)->init_arriv < event_time || event_time == -1)){
                     //printf("NAME: %c !!!!\n", (*(unarrived+i)).name);
                     event = true;
                     event_time = (*(unarrived+i)).init_arriv;
                     event_proc = (*(unarrived+i));
                     num = i;
                 }
-                else if((*(unarrived+i)).return_time == event_time && (*(unarrived+i)).name < event_proc.name){
-                    event = true;
-                    event_time = (*(unarrived+i)).init_arriv;
-                    event_proc = (*(unarrived+i));
-                    num = i;
-                }
+                
             }
             //find io finish
             for(int i = 0; i < num_io; i++){
@@ -2128,7 +2127,7 @@ int main(int argc, char** argv)
                 }
             }
         }
-        ptr->burst_est = ceil(1.00/interarrival);
+        ptr->burst_est = floor(1.000/interarrival);
         ptr->status = 'u';
         ptr->wait_time = calloc(ptr->num_bursts, sizeof(int));
         ptr->turnaround_time = calloc(ptr->num_bursts, sizeof(int));
@@ -2166,7 +2165,6 @@ int main(int argc, char** argv)
             printf("\n");
         }*/
     }
-    printf("\n");
 
     process * algo_copy = calloc(num_proc, sizeof(process));
     process * algo_copy2 = calloc(num_proc, sizeof(process));
@@ -2263,6 +2261,7 @@ int main(int argc, char** argv)
         ptr2->fut_pre = false;
     }*/
 
+    printf("\n<<< PROJECT PART II -- t_cs=%dms; alpha=%.2f; t_slice=%dms >>>\n", time_cs, alpha, t_slice);
 
     FCFS(processesFCFS, num_proc, time_cs/2);
 
