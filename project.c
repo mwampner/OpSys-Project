@@ -208,10 +208,12 @@ void FCFS(process* processes, int num_proc, int ts){
             //change current process to next in ready queue
             current_process = *(ready_queue+0);
 
-            for(int i=0; i<rq_size; i++){
+            for(int i=0; i<rq_size-1; i++){
                     *(ready_queue + i) = *(ready_queue + (i+1));
             }
-            *(ready_queue + rq_size) = 0;
+            if(rq_size< num_proc){
+                *(ready_queue + rq_size) = 0;
+            }
             rq_size--;
             context_switch = ts-1;
         }
@@ -598,10 +600,12 @@ void RR(process* processes, int num_proc, int ts, int time_slice){
             //change current process to next in ready queue
             current_process = *(ready_queue+0);
 
-            for(int i=0; i<rq_size; i++){
+            for(int i=0; i<rq_size-1; i++){
                     *(ready_queue + i) = *(ready_queue + (i+1));
             }
-            *(ready_queue + rq_size) = 0;
+            if(rq_size < num_proc){
+                *(ready_queue + rq_size) = 0;
+            }
             rq_size--;
             context_switch = ts-1;
         }
