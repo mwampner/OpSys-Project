@@ -383,18 +383,18 @@ void FCFS(process* processes, int num_proc, int ts){
     
     fprintf(fp, "Algorithm FCFS\n");
     float use = ((cpu_average_cpu + cpu_average_io) / current_time)*100;
-    fprintf(fp, "-- CPU utilization: %.3f%%\n", ceil(use*1000.0)/1000);
+    fprintf(fp, "-- CPU utilization: %.3f%%\n", ceil(use*1000)/1000);
     use = (cpu_average_cpu/count_cpu);
     float use2 = (cpu_average_io/count_io);
-    fprintf(fp, "-- average CPU burst time: %.3f ms (%.3f ms/%.3f ms)\n",(ceil(cpu_average*1000.0)/1000),(ceil(use*1000.0)/1000),(ceil(use2*1000.0)/1000));
+    fprintf(fp, "-- average CPU burst time: %.3f ms (%.3f ms/%.3f ms)\n",(ceil(cpu_average*1000)/1000),(ceil(use*1000)/1000),(ceil(use2*1000)/1000));
     use = ((io_waiting_time + cpu_waiting_time)/(io_wait_count + cpu_wait_count));
     use2 = (cpu_waiting_time/cpu_wait_count);
     float use3 = (io_waiting_time/io_wait_count);
-    fprintf(fp, "-- average wait time:  %.3f ms ( %.3f ms/ %.3f ms)\n", (ceil(use*1000.0)/1000), (ceil(use2*1000.0)/1000),(ceil(use3*1000.0)/1000));
+    fprintf(fp, "-- average wait time:  %.3f ms ( %.3f ms/ %.3f ms)\n", (ceil(use*1000)/1000), (ceil(use2*1000)/1000),(ceil(use3*1000)/1000));
     use = ((cpu_average_cpu + cpu_average_io + (count_io*(ts*2)) + (count_cpu*(ts*2)) + io_waiting_time + cpu_waiting_time)/(count_cpu + count_io));
     use2 = ((cpu_average_cpu + (count_cpu*(ts*2)) + cpu_waiting_time)/(count_cpu));
     use3 = ((cpu_average_io + (count_io*(ts*2)) + io_waiting_time )/(count_io));
-    fprintf(fp, "-- average turnaround time:  %.3f ms ( %.3f ms/ %.3f ms)\n",(ceil(use*1000.0)/1000), (ceil(use2*1000.0)/1000),(ceil(use3*1000.0)/1000));
+    fprintf(fp, "-- average turnaround time:  %.3f ms ( %.3f ms/ %.3f ms)\n",(ceil(use*1000)/1000), (ceil(use2*1000)/1000),(ceil(use3*1000)/1000));
     fprintf(fp, "-- number of context switches: %d (%d/%d)\n", cs_cpu + cs_io, cs_cpu, cs_io);
     fprintf(fp, "-- number of preemptions: 0 (0/0)\n\n");
 
@@ -688,7 +688,9 @@ void RR(process* processes, int num_proc, int ts, int time_slice){
             }else if(context_switch_out == 0 && preump == true && term == false){
                 if(ptr->type == 1){
                     cpu_turnarount_time++;
+                    cpu_waiting_time--;
                 }else{
+                    io_waiting_time--;
                     io_turnaround_time++;
                 }
                 *(ready_queue + rq_size) = current_process;
@@ -787,18 +789,18 @@ void RR(process* processes, int num_proc, int ts, int time_slice){
     
     fprintf(fp, "Algorithm RR\n");
     float use = ((cpu_average_cpu + cpu_average_io) / current_time)*100;
-    fprintf(fp, "-- CPU utilization: %.3f%%\n", ceil(use*1000.0)/1000);
+    fprintf(fp, "-- CPU utilization: %.3f%%\n", ceil(use*1000)/1000);
     use = (cpu_average_cpu/count_cpu);
     float use2 = (cpu_average_io/count_io);
-    fprintf(fp, "-- average CPU burst time: %.3f ms (%.3f ms/%.3f ms)\n",(ceil(cpu_average*1000.0)/1000),(ceil(use*1000.0)/1000),(ceil(use2*1000.0)/1000));
+    fprintf(fp, "-- average CPU burst time: %.3f ms (%.3f ms/%.3f ms)\n",(ceil(cpu_average*1000)/1000),(ceil(use*1000)/1000),(ceil(use2*1000)/1000));
     use = ((io_waiting_time + cpu_waiting_time)/(io_wait_count + cpu_wait_count));
     use2 = (cpu_waiting_time/cpu_wait_count);
     float use3 = (io_waiting_time/io_wait_count);
-    fprintf(fp, "-- average wait time:  %.3f ms ( %.3f ms/ %.3f ms)\n", (ceil(use*1000.0)/1000), (ceil(use2*1000.0)/1000),(ceil(use3*1000.0)/1000));
-    use = ((cpu_average_cpu + cpu_average_io + (ts*(count_io + num_preumptions_io)) + (ts*(count_cpu + num_preumptions_cpu)) + io_waiting_time + cpu_waiting_time)/(count_cpu + count_io));
-    use2 = ((cpu_average_cpu + (ts*(count_cpu + num_preumptions_cpu)) + cpu_waiting_time)/(count_io));
-    use3 =((cpu_average_io + (ts*(count_io + num_preumptions_io)) + io_waiting_time)/(count_cpu));
-    fprintf(fp, "-- average turnaround time:  %.3f ms ( %.3f ms/ %.3f ms)\n",(ceil(use*1000.0)/1000), (ceil(use2*1000.0)/1000),(ceil(use3*1000.0)/1000));
+    fprintf(fp, "-- average wait time:  %.3f ms ( %.3f ms/ %.3f ms)\n", (ceil(use*1000)/1000), (ceil(use2*1000)/1000),(ceil(use3*1000)/1000));
+    use = ((cpu_average_cpu + cpu_average_io + (((2*ts)*count_cpu) + ((ts*2)*num_preumptions_cpu)) + (((2*ts)*count_io) + ((ts*2) * num_preumptions_io)) + io_waiting_time + cpu_waiting_time)/(count_cpu + count_io));
+    use2 = ((cpu_average_cpu + ((2*ts)*count_cpu) + ((ts*2)*num_preumptions_cpu)) + cpu_waiting_time)/(count_cpu);
+    use3 =(cpu_average_io + ((2*ts)*count_io) + ((ts*2) * num_preumptions_io) + io_waiting_time)/(count_io);
+    fprintf(fp, "-- average turnaround time:  %.3f ms ( %.3f ms/ %.3f ms)\n",(ceil(use*1000)/1000), (ceil(use2*1000)/1000),(ceil(use3*1000)/1000));
     fprintf(fp, "-- number of context switches: %d (%d/%d)\n", cs_cpu + cs_io, cs_cpu, cs_io);
     fprintf(fp, "-- number of preemptions: %d (%d/%d)\n", num_preumptions_io + num_preumptions_cpu, num_preumptions_cpu, num_preumptions_io);
 
@@ -1231,9 +1233,9 @@ void sjf(process * unarrived, int len, int t_cs, float est, int upper){
 
     fprintf(fp, "Algorithm SJF\n");
     fprintf(fp, "-- CPU utilization: %.3f%%\n", use);
-    fprintf(fp, "-- average CPU burst time: %.3f ms (%.3f ms/%.3f ms)\n", ceil(tot_cpu/tot_burst_num*1000.0)/1000, ceil(cpu_cpu/tot_cpu_num*1000.0)/1000, ceil(io_cpu/tot_io_num*1000.0)/1000);
-    fprintf(fp, "-- average wait time: %.3f ms (%.3f ms/%.3f ms)\n", ceil(tot_wait/tot_burst_num*1000.0)/1000, ceil(cpu_wait/tot_cpu_num*1000.0)/1000, ceil(io_wait/tot_io_num*1000.0)/1000);
-    fprintf(fp, "-- average turnaround time: %.3f ms (%.3f ms/%.3f ms)\n", ceil(tot_turn/tot_burst_num*1000.0)/1000, ceil(cpu_turn/tot_cpu_num*1000.0)/1000, ceil(io_turn/tot_io_num*1000.0)/1000);
+    fprintf(fp, "-- average CPU burst time: %.3f ms (%.3f ms/%.3f ms)\n", ceil(tot_cpu/tot_burst_num*1000)/1000, ceil(cpu_cpu/tot_cpu_num*1000)/1000, ceil(io_cpu/tot_io_num*1000)/1000);
+    fprintf(fp, "-- average wait time: %.3f ms (%.3f ms/%.3f ms)\n", ceil(tot_wait/tot_burst_num*1000)/1000, ceil(cpu_wait/tot_cpu_num*1000)/1000, ceil(io_wait/tot_io_num*1000)/1000);
+    fprintf(fp, "-- average turnaround time: %.3f ms (%.3f ms/%.3f ms)\n", ceil(tot_turn/tot_burst_num*1000)/1000, ceil(cpu_turn/tot_cpu_num*1000)/1000, ceil(io_turn/tot_io_num*1000)/1000);
     fprintf(fp, "-- number of context switches: %d (%d/%d)\n", tot_cs, cpu_cs, io_cs);
     fprintf(fp, "-- number of preemptions: 0 (0/0)\n\n");
     //fputs("Algorithm SJF\n", fd);
@@ -1990,10 +1992,10 @@ void srt(process * unarrived, int len, int t_cs, float est, int upper){
     fp = fopen("simout.txt" ,"a");
 
     fprintf(fp, "Algorithm SRT\n");
-    fprintf(fp, "-- CPU utilization: %.3f%%\n", ceil(use*1000.0)/1000);
-    fprintf(fp, "-- average CPU burst time: %.3f ms (%.3f ms/%.3f ms)\n", ceil(tot_cpu/tot_burst_num*1000.0)/1000, ceil(cpu_cpu/tot_cpu_num*1000.0)/1000, ceil(io_cpu/tot_io_num*1000.0)/1000);
-    fprintf(fp, "-- average wait time: %.3f ms (%.3f ms/%.3f ms)\n", ceil(tot_wait/tot_burst_num*1000.0)/1000, ceil(cpu_wait/tot_cpu_num*1000.0)/1000, ceil(io_wait/tot_io_num*1000.0)/1000);
-    fprintf(fp, "-- average turnaround time: %.3f ms (%.3f ms/%.3f ms)\n", ceil(tot_turn/tot_burst_num*1000.0)/1000, ceil(cpu_turn/tot_cpu_num*1000.0)/1000, ceil(io_turn/tot_io_num*1000.0)/1000);
+    fprintf(fp, "-- CPU utilization: %.3f%%\n", ceil(use*1000)/1000);
+    fprintf(fp, "-- average CPU burst time: %.3f ms (%.3f ms/%.3f ms)\n", ceil(tot_cpu/tot_burst_num*1000)/1000, ceil(cpu_cpu/tot_cpu_num*1000)/1000, ceil(io_cpu/tot_io_num*1000)/1000);
+    fprintf(fp, "-- average wait time: %.3f ms (%.3f ms/%.3f ms)\n", ceil(tot_wait/tot_burst_num*1000)/1000, ceil(cpu_wait/tot_cpu_num*1000)/1000, ceil(io_wait/tot_io_num*1000)/1000);
+    fprintf(fp, "-- average turnaround time: %.3f ms (%.3f ms/%.3f ms)\n", ceil(tot_turn/tot_burst_num*1000)/1000, ceil(cpu_turn/tot_cpu_num*1000)/1000, ceil(io_turn/tot_io_num*1000)/1000);
     fprintf(fp, "-- number of context switches: %d (%d/%d)\n", tot_cs, cpu_cs, io_cs);
     fprintf(fp, "-- number of preemptions: %d (%d/%d)\n\n", cpu_preempt+io_preempt, cpu_preempt, io_preempt);
     //fputs("Algorithm SJF\n", fd);}
