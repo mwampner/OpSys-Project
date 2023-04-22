@@ -1763,12 +1763,14 @@ void srt(process * unarrived, int len, int t_cs, float est, int upper){
                     //event occuers in context switch
                     if(cs){
                         time += t_cs/2;
+                        if(num_waiting != 0){
                         running = *(waiting);
                         //move up other waiting processes
                         for(int i = 0; i < num_waiting - 1; i++){
                             *(waiting + i) = *(waiting + i + 1);
                         }
                         num_waiting--;
+                        }
                     }
                     //move process to wait list
                     //add to waiting list
@@ -1793,6 +1795,7 @@ void srt(process * unarrived, int len, int t_cs, float est, int upper){
                         }
                     }
                     num_waiting++;
+                    //printf("%d\n", num_waiting);
                     *(waiting+index) = event_proc;
                     //check for wait preemption
                     //print messages
@@ -2129,7 +2132,12 @@ int main(int argc, char** argv)
                 }
             }
         }
-        ptr->burst_est = floor(1.000/interarrival);
+        if(interarrival > (float)0.001){
+            ptr->burst_est = 1/interarrival;
+        }
+        else{
+            ptr->burst_est = ceil(1.00/interarrival);
+        }
         ptr->status = 'u';
         ptr->wait_time = calloc(ptr->num_bursts, sizeof(int));
         ptr->turnaround_time = calloc(ptr->num_bursts, sizeof(int));
